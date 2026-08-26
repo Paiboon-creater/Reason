@@ -3,113 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบริหารจัดการการผลิต</title>
+    <title>สาเหตุที่ไม่ได้ยอด</title>
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <style>
-        :root {
-            --bg-dark-blue: #041421;
-            --card-teal: #082f49;
-            --border-cyan: #06b6d4;
-            --text-light-blue: #7dd3fc;
-            --text-cyan: #22d3ee;
-            --text-white: #f0f9ff;
-            --text-red: #fb7185;
-            --text-yellow: #fde047;
-            --table-bg: #f0fdfa;
-            --table-text-dark: #0f172a;
-            --table-th-bg: #ccfbf1;
-        }
-
+        /* ธีมกระดานหุ้น โทนสีฟ้าเขียว (Cyan/Teal Stock Board Theme) */
         body {
-            background-color: var(--bg-dark-blue);
-            color: var(--text-light-blue);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-bottom: 3rem;
+            background-color: #0b1519;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
         }
-        .container { max-width: 950px; margin-top: 2rem; }
-        
-        .stock-header {
-            color: var(--text-cyan);
-            text-align: center;
-            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
-            font-weight: bold;
-            margin-bottom: 25px;
-            letter-spacing: 1px;
-        }
-
-        .card-stock {
-            background-color: var(--card-teal);
-            border: 1px solid var(--border-cyan);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.6);
+        .container {
+            max-width: 600px;
+            margin-top: 2rem;
             margin-bottom: 2rem;
         }
-
-        .form-label { color: var(--text-light-blue); font-weight: bold; }
+        .stock-header {
+            color: #00e5ff;
+            text-align: center;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .card-stock {
+            background-color: #112228;
+            border: 1px solid #1a3c45;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.8);
+        }
+        .form-control-stock {
+            background-color: #050a0c;
+            border: 1px solid #1a3c45;
+            color: #00e5ff;
+            font-size: 1.1rem;
+        }
+        .form-control-stock:focus {
+            background-color: #050a0c;
+            color: #00e5ff;
+            border-color: #00e5ff;
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+        }
+        .btn-buy {
+            background-color: #009688;
+            color: white;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            font-weight: bold;
+        }
+        .btn-buy:hover { background-color: #00bfa5; color: white; }
+        .btn-sell { background-color: #d93838; color: white; font-weight: bold;}
+        .btn-sell:hover { background-color: #ff5252; color: white; }
+        .btn-edit { background-color: #e6a817; color: white; font-weight: bold;}
         
-        .form-control-stock, .form-select-stock {
-            background-color: #021a2c;
-            border: 1px solid #0e7490;
-            color: var(--text-light-blue);
-            border-radius: 6px;
+        .table-stock { color: #c9d1d9; border-color: #1a3c45; margin-top: 20px;}
+        .table-stock th {
+            background-color: #112228;
+            color: #00e5ff;
+            border-bottom: 2px solid #00e5ff;
         }
-        .form-control-stock:focus, .form-select-stock:focus {
-            background-color: #021a2c;
-            color: var(--text-white);
-            border-color: var(--text-cyan);
-            box-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
-        }
-        .form-control-stock:disabled, .form-select-stock:disabled {
-            background-color: #05233a;
-            color: #475569;
-        }
-
-        .order-info-box {
-            background-color: #021a2c;
-            border-left: 4px solid var(--text-cyan);
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-        .order-info-text { font-size: 0.95rem; color: var(--text-white); margin-bottom: 5px; }
-        .order-info-hl { color: var(--text-cyan); font-weight: bold; }
-
-        .btn-cyan { background-color: #0891b2; color: white; font-weight: bold; border: none; }
-        .btn-cyan:hover { background-color: #0e7490; color: white; }
-        .btn-outline-cyan { border: 1px solid var(--text-cyan); color: var(--text-cyan); font-weight: bold;}
-        .btn-outline-cyan:hover { background-color: var(--text-cyan); color: var(--bg-dark-blue); }
-
-        .table-wrapper {
-            background-color: var(--table-bg);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
-            margin-top: 15px;
-        }
-        .filter-box { 
-            background-color: #e0f2fe; 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            border: 1px dashed #0ea5e9;
-            color: var(--table-text-dark);
-        }
+        .table-stock td { vertical-align: middle; }
+        .table-stock tbody tr:hover { background-color: #162f38; }
         
-        .table-dark-text { color: var(--table-text-dark); font-size: 0.9rem; font-weight: 500; }
-        .table-dark-text th { background-color: var(--table-th-bg); color: var(--table-text-dark); border-bottom: 2px solid #14b8a6; white-space: nowrap; font-weight: bold; }
-        .table-dark-text td { vertical-align: middle; border-color: #99f6e4; white-space: nowrap; }
-        .table-dark-text tbody tr:hover { background-color: #e2e8f0; }
+        .toggle-btn {
+            background-color: #1a3c45;
+            color: #00e5ff;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 1px solid #00e5ff;
+        }
+        .toggle-btn:hover { background-color: #00e5ff; color: #0b1519; }
         
-        .btn-action { padding: 4px 10px; font-size: 0.8rem; font-weight: bold; border-radius: 4px; }
-        .btn-edit { background-color: #f59e0b; color: white; border: none; margin-right: 5px; }
-        .btn-delete { background-color: #ef4444; color: white; border: none; }
-
+        .action-btns button { padding: 5px 10px; font-size: 0.85rem; margin-bottom: 3px; }
+        
+        /* ตัวอักษรสีน้ำเงินเข้ม */
         .reason-cell {
             color: #00008B;
             font-weight: bold;
@@ -125,512 +92,152 @@
 <body>
 
 <div class="container">
-    <!-- ================= SECTION 1: ระบบบันทึกแผนงาน (Plan Step) ================= -->
-    <h2 class="stock-header">📈 ระบบบันทึกแผนงาน (Plan Step)</h2>
+    <h4 class="stock-header">★ บันทึกสาเหตุที่ไม่ได้ยอด ★</h4>
     
-    <div class="card card-stock">
-        <form id="stepForm">
-            <input type="hidden" id="edit_mode" value="false">
-            
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">📝 เลขที่ใบสั่ง (Order No)</label>
-                    <select id="id_order" class="form-select form-select-stock" required onchange="onOrderSelect()">
-                        <option value="">-- โหลดข้อมูลใบสั่ง --</option>
-                    </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">⚙️ ขั้นตอนทำงาน (Step Name)</label>
-                    <select id="id_step" class="form-select form-select-stock" required>
-                        <option value="">-- กรุณาเลือกใบสั่งก่อน --</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="orderInfo" class="order-info-box">
-                <div class="row">
-                    <div class="col-md-12 order-info-text mb-2 border-bottom border-secondary pb-2">
-                        รหัสชิ้นงาน (Work Code): <span id="display_work_code" class="order-info-hl text-warning">-</span>
-                    </div>
-                    <div class="col-md-6 order-info-text">
-                        วันเริ่มใบสั่ง: <span id="display_order_start" class="order-info-hl">-</span>
-                    </div>
-                    <div class="col-md-6 order-info-text text-md-end">
-                        กำหนดเสร็จใบสั่ง: <span id="display_order_end" class="order-info-hl text-danger">-</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">📅 วันเริ่มทำงาน (Plan Start)</label>
-                    <input type="date" id="start_date" class="form-control form-control-stock" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">🚩 กำหนดเสร็จ (Plan End)</label>
-                    <input type="date" id="end_date" class="form-control form-control-stock" required>
-                </div>
-            </div>
-
-            <div class="d-flex gap-2 mt-2">
-                <button type="button" class="btn btn-cyan w-100 py-2" id="btnSave" onclick="saveData()">[+] บันทึกข้อมูลแผนงาน (SAVE)</button>
-                <button type="button" class="btn btn-secondary w-25" id="btnCancelEdit" style="display:none;" onclick="cancelEdit()">ยกเลิก</button>
-            </div>
-        </form>
-    </div>
-
-    <div class="text-center mb-4" id="showTableBtnContainer">
-        <button class="btn btn-outline-cyan px-4 py-2" onclick="showTableSection()">
-            📊 โหลดข้อมูลตารางตรวจสอบแผนงาน
-        </button>
-    </div>
-
-    <div id="tableSection" style="display: none;">
-        <div class="table-wrapper">
-            <h5 style="color: var(--table-text-dark); font-weight: bold; margin-bottom: 15px;">ตารางข้อมูลรายการแผนงาน</h5>
-            <div class="filter-box d-flex justify-content-between align-items-end flex-wrap gap-2">
-                <div style="flex: 1; min-width: 250px;">
-                    <label class="form-label mb-1 text-dark" style="font-size:0.85rem;">🔍 กรองตามเลขที่ใบสั่ง (ออโต้ฟิลเตอร์)</label>
-                    <select id="filter_order" class="form-select border-primary text-dark" onchange="renderTable()">
-                        <option value="">-- แสดงทั้งหมด --</option>
-                    </select>
-                </div>
-                <div>
-                    <button class="btn btn-primary fw-bold" onclick="loadTableData()">รีเฟรชข้อมูล</button>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-dark-text align-middle">
-                    <thead>
-                        <tr>
-                            <th>เลขที่ใบสั่ง</th>
-                            <th>รหัสชิ้นงาน</th>
-                            <th>ขั้นตอนทำงาน</th>
-                            <th>วันเริ่ม (Start)</th>
-                            <th>กำหนดเสร็จ (End)</th>
-                            <th class="text-center">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dataTableBody">
-                        <tr><td colspan="6" class="text-center">คลิกปุ่มโหลดข้อมูลเพื่อตรวจสอบ</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <hr class="my-5 border-secondary">
-
-    <!-- ================= SECTION 2: ระบบบันทึกสาเหตุที่ไม่ได้ยอด (Reasons) ================= -->
-    <h2 class="stock-header">★ บันทึกสาเหตุที่ไม่ได้ยอด ★</h2>
-    
+    <!-- ฟอร์มเพิ่มข้อมูล -->
     <div class="card card-stock p-4 mb-4">
-        <label class="form-label">ระบุสาเหตุ (Reason Detail)</label>
+        <label class="form-label" style="color: #79aebf;">ระบุสาเหตุ (Reason Detail)</label>
         <input type="text" id="reasonInput" class="form-control form-control-stock mb-3" placeholder="พิมพ์สาเหตุที่นี่...">
-        <button class="btn btn-cyan w-100 py-2" id="btnAddReason" onclick="addReason()">[+] บันทึกสาเหตุ (SAVE)</button>
+        <button class="btn btn-buy w-100 py-2" id="btnAdd" onclick="addReason()">[+] บันทึกข้อมูล (SAVE)</button>
     </div>
 
-    <div class="text-center mb-4">
-        <button class="btn btn-outline-cyan px-4 py-2" onclick="toggleReasonTable()">
-            📊 เปิด/ปิด กระดานตรวจสอบสาเหตุ ▼
-        </button>
-    </div>
+    <!-- ปุ่มเปิดปิดตาราง -->
+    <button class="btn toggle-btn w-100 py-2 mb-3" onclick="toggleTable()">
+        เปิด/ปิด กระดานตรวจสอบข้อมูล ▼
+    </button>
 
-    <div id="reasonTableContainer" style="display: none;">
-        <div class="table-wrapper">
-            <h5 style="color: var(--table-text-dark); font-weight: bold; margin-bottom: 15px;">ตารางบันทึกสาเหตุ</h5>
-            <div class="table-responsive">
-                <table class="table table-dark-text align-middle text-center">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%;">ID</th>
-                            <th class="text-start" style="width: 55%;">REASON</th>
-                            <th style="width: 30%;">ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reasonTableBody">
-                        <tr><td colspan="3" class="text-center">กำลังโหลดข้อมูล...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+    <!-- พื้นที่แสดงตาราง (ซ่อนไว้ตอนแรก) -->
+    <div id="tableContainer" style="display: none;">
+        <div class="table-responsive">
+            <table class="table table-stock text-center align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">ID</th>
+                        <th class="text-start" style="width: 50%;">REASON</th>
+                        <th style="width: 30%;">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody id="reasonTableBody">
+                    <!-- ข้อมูลจะแสดงตรงนี้ -->
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
-    const BASE_URL = 'https://siiiifesdjuunwmwozfb.supabase.co/rest/v1';
+    // ตั้งค่าการเชื่อมต่อ Supabase
+    const SUPABASE_URL = 'https://siiiifesdjuunwmwozfb.supabase.co/rest/v1/reasons';
     const SUPABASE_KEY = 'sb_publishable_ohToE8Z_Fzo87uBtzdPDIg_cqHCi3HT';
-    const headers = { 
-        'apikey': SUPABASE_KEY, 
-        'Authorization': `Bearer ${SUPABASE_KEY}`, 
+
+    const headers = {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
         'Prefer': 'return=representation'
     };
 
-    let refData = { orders: {}, steps: {}, targets: [], works: {} };
-    let tableData = []; 
-    let isReasonTableVisible = false;
+    let isTableVisible = false;
 
-    // โหลดข้อมูลเริ่มต้นทั้งหมดเมื่อเปิดหน้าเว็บ
-    window.onload = async function() {
-        document.getElementById('start_date').valueAsDate = new Date();
-        Swal.fire({ title: 'เชื่อมต่อฐานข้อมูล...', background: '#082f49', color: '#22d3ee', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-
-        try {
-            const [orders, steps, targets, works] = await Promise.all([
-                fetch(`${BASE_URL}/orders?select=id_order,order_no,id_work,start_date,end_date`, { headers }).then(r => r.json()),
-                fetch(`${BASE_URL}/production_steps?select=id_step,step_name`, { headers }).then(r => r.json()),
-                fetch(`${BASE_URL}/targets?select=id_work,id_step`, { headers }).then(r => r.json()),
-                fetch(`${BASE_URL}/work_items?select=id_work,work_code`, { headers }).then(r => r.json())
-            ]);
-
-            const selectOrder = document.getElementById('id_order');
-            const filterOrder = document.getElementById('filter_order');
-            
-            selectOrder.innerHTML = `<option value="">-- เลือกใบสั่ง --</option>`;
-            filterOrder.innerHTML = `<option value="">-- แสดงทั้งหมด --</option>`;
-            
-            orders.forEach(o => {
-                refData.orders[o.id_order] = o;
-                let optStr = `<option value="${o.id_order}">${o.order_no}</option>`;
-                selectOrder.innerHTML += optStr;
-                filterOrder.innerHTML += optStr;
-            });
-
-            steps.forEach(s => refData.steps[s.id_step] = s.step_name);
-            works.forEach(w => refData.works[w.id_work] = w.work_code);
-            refData.targets = targets;
-
-            Swal.close();
-        } catch (error) {
-            console.error(error);
-            Swal.fire({icon: 'error', title: 'Error', text: 'เชื่อมต่อฐานข้อมูลล้มเหลว', background: '#082f49', color: 'white'});
-        }
-    };
-
-    // ==========================================
-    // ส่วนที่ 1: ระบบ Plan Step
-    // ==========================================
-    function onOrderSelect() {
-        const orderId = document.getElementById('id_order').value;
-        const infoBox = document.getElementById('orderInfo');
-        const selectStep = document.getElementById('id_step');
+    // 1. ฟังก์ชันเปิด-ปิดตาราง
+    function toggleTable() {
+        const container = document.getElementById('tableContainer');
+        isTableVisible = !isTableVisible;
         
-        selectStep.innerHTML = `<option value="">-- เลือกขั้นตอน --</option>`;
-
-        if (orderId && refData.orders[orderId]) {
-            const orderInfo = refData.orders[orderId];
-            const workCode = refData.works[orderInfo.id_work] || 'ไม่พบรหัสชิ้นงาน';
-            
-            document.getElementById('display_work_code').innerText = workCode;
-            document.getElementById('display_order_start').innerText = orderInfo.start_date || 'ไม่ระบุ';
-            document.getElementById('display_order_end').innerText = orderInfo.end_date || 'ไม่ระบุ';
-            infoBox.style.display = 'block';
-
-            if (orderInfo.id_work) {
-                const validSteps = refData.targets.filter(t => t.id_work === orderInfo.id_work);
-                const uniqueStepIds = [...new Set(validSteps.map(t => t.id_step))];
-                
-                if(uniqueStepIds.length > 0) {
-                    uniqueStepIds.forEach(stepId => {
-                        let stepName = refData.steps[stepId] || `Step ID: ${stepId}`;
-                        selectStep.innerHTML += `<option value="${stepId}">${stepName}</option>`;
-                    });
-                } else {
-                    selectStep.innerHTML = `<option value="">-- ไม่พบขั้นตอนสำหรับใบสั่งนี้ --</option>`;
-                }
-            } else {
-                selectStep.innerHTML = `<option value="">-- ใบสั่งนี้ไม่มีข้อมูลรหัสชิ้นงาน --</option>`;
-            }
-        } else {
-            infoBox.style.display = 'none';
-            selectStep.innerHTML = `<option value="">-- กรุณาเลือกใบสั่งก่อน --</option>`;
-        }
-    }
-
-    async function saveData() {
-        const id_order = document.getElementById('id_order').value;
-        const id_step = document.getElementById('id_step').value;
-        const start_date = document.getElementById('start_date').value;
-        const end_date = document.getElementById('end_date').value;
-        const isEditMode = document.getElementById('edit_mode').value === 'true';
-
-        if (!id_order || !id_step || !start_date || !end_date) {
-            Swal.fire({icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณากรอกข้อมูลให้ครบ', background: '#082f49', color: 'white'}); 
-            return;
-        }
-
-        const payload = {
-            id_order: parseInt(id_order),
-            id_step: parseInt(id_step),
-            start_date: start_date,
-            end_date: end_date
-        };
-
-        document.getElementById('btnSave').disabled = true;
-
-        try {
-            if (!isEditMode) {
-                const checkRes = await fetch(`${BASE_URL}/order_steps?id_order=eq.${id_order}&id_step=eq.${id_step}&select=id_order`, { headers });
-                const existingData = await checkRes.json();
-                
-                if (existingData.length > 0) {
-                    Swal.fire({icon: 'error', title: 'ข้อมูลซ้ำ!', text: 'ใบสั่งนี้มีการบันทึกขั้นตอนนี้ไปแล้ว', background: '#082f49', color: 'white'});
-                    document.getElementById('btnSave').disabled = false;
-                    return;
-                }
-
-                const res = await fetch(`${BASE_URL}/order_steps`, {
-                    method: 'POST', headers: { ...headers, 'Prefer': 'return=minimal' }, body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error('Save Failed');
-            
-            } else {
-                const res = await fetch(`${BASE_URL}/order_steps?id_order=eq.${id_order}&id_step=eq.${id_step}`, {
-                    method: 'PATCH', headers: { ...headers, 'Prefer': 'return=minimal' }, body: JSON.stringify({ start_date, end_date })
-                });
-                if (!res.ok) throw new Error('Update Failed');
-                cancelEdit(); 
-            }
-
-            Swal.fire({icon: 'success', title: 'บันทึกสำเร็จ', timer: 1500, showConfirmButton: false, background: '#082f49', color: '#22d3ee'});
-            
-            document.getElementById('start_date').value = '';
-            document.getElementById('end_date').value = '';
-
-            document.getElementById('showTableBtnContainer').style.display = 'none';
-            document.getElementById('tableSection').style.display = 'block';
-            document.getElementById('filter_order').value = id_order;
-            
-            await loadTableDataRaw();
-            renderTable();
-
-        } catch (e) {
-            Swal.fire({icon: 'error', title: 'Error', text: 'เกิดข้อผิดพลาดในการประมวลผล', background: '#082f49', color: 'white'});
-        } finally {
-            document.getElementById('btnSave').disabled = false;
-        }
-    }
-
-    function showTableSection() {
-        document.getElementById('showTableBtnContainer').style.display = 'none';
-        document.getElementById('tableSection').style.display = 'block';
-        loadTableData();
-    }
-
-    async function loadTableDataRaw() {
-        const res = await fetch(`${BASE_URL}/order_steps?select=*&order=start_date.desc`, { headers });
-        tableData = await res.json();
-    }
-
-    async function loadTableData() {
-        Swal.fire({ title: 'กำลังดึงข้อมูล...', background: '#082f49', color: '#22d3ee', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-        try {
-            await loadTableDataRaw();
-            renderTable();
-            Swal.close();
-        } catch(e) {
-            Swal.fire({icon: 'error', title: 'Error', text: 'ดึงข้อมูลไม่สำเร็จ', background: '#082f49', color: 'white'});
-        }
-    }
-
-    function renderTable() {
-        const filterVal = document.getElementById('filter_order').value;
-        const tbody = document.getElementById('dataTableBody');
-        tbody.innerHTML = '';
-
-        let filtered = tableData;
-        if (filterVal) {
-            filtered = tableData.filter(row => row.id_order == filterVal);
-        }
-
-        if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">ไม่มีข้อมูลที่ตรงกับเงื่อนไข</td></tr>';
-            return;
-        }
-
-        filtered.forEach(row => {
-            let orderObj = refData.orders[row.id_order];
-            let orderNo = orderObj ? orderObj.order_no : row.id_order;
-            let workCode = orderObj && refData.works[orderObj.id_work] ? refData.works[orderObj.id_work] : '-';
-            let stepName = refData.steps[row.id_step] || row.id_step;
-
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="fw-bold" style="color: #0369a1;">${orderNo}</td>
-                <td style="color: #0f766e;">${workCode}</td>
-                <td>${stepName}</td>
-                <td>${row.start_date || '-'}</td>
-                <td style="color: #dc2626; font-weight: 500;">${row.end_date || '-'}</td>
-                <td class="text-center">
-                    <button class="btn-action btn-edit" onclick="verifyPin(() => triggerEdit(${row.id_order}, ${row.id_step}, '${row.start_date}', '${row.end_date}'))">แก้ไข</button>
-                    <button class="btn-action btn-delete" onclick="verifyPin(() => deleteRecord(${row.id_order}, ${row.id_step}))">ลบ</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function triggerEdit(id_order, id_step, start_date, end_date) {
-        document.getElementById('id_order').value = id_order;
-        onOrderSelect();
-        
-        setTimeout(() => {
-            document.getElementById('id_step').value = id_step;
-        }, 100);
-
-        document.getElementById('start_date').value = start_date;
-        document.getElementById('end_date').value = end_date;
-        
-        document.getElementById('id_order').disabled = true;
-        document.getElementById('id_step').disabled = true;
-        
-        document.getElementById('edit_mode').value = 'true';
-        document.getElementById('btnSave').innerText = '[*] บันทึกการแก้ไข (UPDATE)';
-        document.getElementById('btnSave').classList.replace('btn-cyan', 'btn-warning');
-        document.getElementById('btnCancelEdit').style.display = 'block';
-        
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function cancelEdit() {
-        document.getElementById('id_order').disabled = false;
-        document.getElementById('id_step').disabled = false;
-        document.getElementById('id_order').value = '';
-        
-        onOrderSelect();
-        
-        document.getElementById('start_date').value = '';
-        document.getElementById('end_date').value = '';
-        
-        document.getElementById('edit_mode').value = 'false';
-        document.getElementById('btnSave').innerText = '[+] บันทึกข้อมูลแผนงาน (SAVE)';
-        document.getElementById('btnSave').classList.replace('btn-warning', 'btn-cyan');
-        document.getElementById('btnCancelEdit').style.display = 'none';
-    }
-
-    async function deleteRecord(id_order, id_step) {
-        const confirmDelete = await Swal.fire({
-            title: 'ยืนยันการลบ?',
-            text: "ข้อมูลนี้จะถูกลบออกจากระบบอย่างถาวร!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'ลบทิ้ง',
-            cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#ef4444',
-            background: '#082f49', color: '#7dd3fc'
-        });
-
-        if (confirmDelete.isConfirmed) {
-            try {
-                const res = await fetch(`${BASE_URL}/order_steps?id_order=eq.${id_order}&id_step=eq.${id_step}`, {
-                    method: 'DELETE', headers: headers
-                });
-                if (res.ok) {
-                    Swal.fire({icon: 'success', title: 'ลบข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false, background: '#082f49', color: '#22d3ee'});
-                    await loadTableDataRaw();
-                    renderTable();
-                } else {
-                    throw new Error('Delete Failed');
-                }
-            } catch (e) {
-                Swal.fire({icon: 'error', title: 'Error', text: 'ลบข้อมูลไม่สำเร็จ', background: '#082f49', color: 'white'});
-            }
-        }
-    }
-
-    // ==========================================
-    // ส่วนที่ 2: ระบบบันทึกสาเหตุ (Reasons)
-    // ==========================================
-    function toggleReasonTable() {
-        const container = document.getElementById('reasonTableContainer');
-        isReasonTableVisible = !isReasonTableVisible;
-        
-        if (isReasonTableVisible) {
+        if (isTableVisible) {
             container.style.display = 'block';
-            loadReasonData();
+            loadData(); // ดึงข้อมูลเมื่อกดแสดงผล
         } else {
             container.style.display = 'none';
         }
     }
 
-    async function verifyPin(actionCallback) {
-        const { value: pin } = await Swal.fire({
-            title: '🔒 ยืนยันตัวตน',
-            text: 'กรุณาใส่รหัสผ่านเพื่อดำเนินการ (112233)',
+    // 2. ฟังก์ชันตรวจสอบรหัสผ่าน
+    async function authenticateAction(actionCallback) {
+        const { value: password } = await Swal.fire({
+            title: 'Security Check',
+            text: 'กรุณากรอกรหัสผ่านเพื่อดำเนินการ',
             input: 'password',
-            inputAttributes: { autocapitalize: 'off' },
+            inputPlaceholder: 'PIN',
+            background: '#112228',
+            color: '#c9d1d9',
+            confirmButtonColor: '#009688',
             showCancelButton: true,
-            confirmButtonText: 'ตกลง',
-            cancelButtonText: 'ยกเลิก',
-            background: '#041421', color: '#7dd3fc',
-            customClass: { confirmButton: 'btn btn-cyan', cancelButton: 'btn btn-secondary' }
+            inputAttributes: { autocapitalize: 'off' }
         });
 
-        if (pin === '112233') {
+        if (password === '112233') {
             actionCallback();
-        } else if (pin) {
-            Swal.fire({ icon: 'error', title: 'รหัสไม่ถูกต้อง', text: 'คุณไม่มีสิทธิ์ทำรายการนี้', background: '#041421', color: '#fb7185' });
+        } else if (password) {
+            Swal.fire({ icon: 'error', title: 'รหัสผ่านไม่ถูกต้อง', background: '#112228', color: '#c9d1d9' });
         }
     }
 
+    // 3. ฟังก์ชันเช็กข้อมูลซ้ำในฐานข้อมูล
     async function checkDuplicateReason(reasonToCheck, excludeId = null) {
         try {
             const encodedReason = encodeURIComponent(reasonToCheck);
-            let url = `${BASE_URL}/reasons?reason_detail=eq.${encodedReason}&select=id_reason,reason_detail`;
+            let url = `${SUPABASE_URL}?reason_detail=eq.${encodedReason}&select=id_reason,reason_detail`;
+            
             if (excludeId) {
                 url += `&id_reason=neq.${excludeId}`;
             }
+
             const response = await fetch(url, { method: 'GET', headers: headers });
             const data = await response.json();
+            
             return data.length > 0;
         } catch (error) {
+            console.error('Check duplicate error:', error);
             return false;
         }
     }
 
-    async function loadReasonData() {
-        if (!isReasonTableVisible) return;
+    // 4. ดึงข้อมูลมาแสดงผล (เรียงลำดับตัวอักษร)
+    async function loadData() {
+        if (!isTableVisible) return;
+        
         const tbody = document.getElementById('reasonTableBody');
         tbody.innerHTML = '<tr><td colspan="3" class="text-center text-warning">กำลังโหลดข้อมูล...</td></tr>';
         
         try {
-            const response = await fetch(`${BASE_URL}/reasons?select=*&order=reason_detail.asc`, { method: 'GET', headers: headers });
+            const response = await fetch(`${SUPABASE_URL}?select=*&order=reason_detail.asc`, { method: 'GET', headers: headers });
             const data = await response.json();
             
             tbody.innerHTML = '';
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-secondary">ยังไม่มีข้อมูลสาเหตุ</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color: #79aebf;">ยังไม่มีข้อมูลสาเหตุ</td></tr>';
                 return;
             }
 
             data.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="color: #0369a1; font-weight: bold;">${item.id_reason}</td>
+                    <td style="color: #79aebf; font-size: 0.9rem;">${item.id_reason}</td>
                     <td class="text-start">
                         <div class="reason-cell">${item.reason_detail}</div>
                     </td>
-                    <td>
-                        <button class="btn-action btn-edit" onclick="verifyPin(() => editReason('${item.id_reason}', '${item.reason_detail}'))">แก้ไข</button>
-                        <button class="btn-action btn-delete" onclick="verifyPin(() => deleteReason('${item.id_reason}'))">ลบ</button>
+                    <td class="action-btns">
+                        <button class="btn btn-edit w-100" onclick="editReason('${item.id_reason}', '${item.reason_detail}')">Edit</button>
+                        <button class="btn btn-sell w-100 mt-1" onclick="deleteReason('${item.id_reason}')">Del</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         } catch (error) {
+            console.error('Error loading data:', error);
             tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
         }
     }
 
+    // 5. เพิ่มข้อมูล พร้อมตรวจสอบข้อมูลซ้ำ
     async function addReason() {
         const reasonInput = document.getElementById('reasonInput');
         const reasonVal = reasonInput.value.trim();
-        const btnAdd = document.getElementById('btnAddReason');
+        const btnAdd = document.getElementById('btnAdd');
         
         if (!reasonVal) {
-            Swal.fire({ icon: 'warning', title: 'กรุณาระบุสาเหตุ', background: '#082f49', color: 'white'});
+            Swal.fire({ icon: 'warning', title: 'กรุณาระบุสาเหตุ', background: '#112228', color: '#c9d1d9'});
             return;
         }
 
@@ -639,93 +246,104 @@
         
         const isDuplicate = await checkDuplicateReason(reasonVal);
         if (isDuplicate) {
-            Swal.fire({ icon: 'error', title: 'ข้อมูลซ้ำ!', text: 'มีสาเหตุนี้ในระบบแล้ว', background: '#082f49', color: 'white' });
+            Swal.fire({ icon: 'error', title: 'ข้อมูลซ้ำ!', text: 'มีสาเหตุนี้ในระบบแล้ว ไม่สามารถบันทึกซ้ำได้', background: '#112228', color: '#c9d1d9' });
             btnAdd.disabled = false;
-            btnAdd.innerText = '[+] บันทึกสาเหตุ (SAVE)';
+            btnAdd.innerText = '[+] บันทึกข้อมูล (SAVE)';
             return;
         }
 
         try {
-            const response = await fetch(`${BASE_URL}/reasons`, {
+            const response = await fetch(SUPABASE_URL, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify({ reason_detail: reasonVal })
             });
 
             if (response.ok) {
-                Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1500, showConfirmButton: false, background: '#082f49', color: '#22d3ee' });
+                Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1500, showConfirmButton: false, background: '#112228', color: '#00e5ff' });
                 reasonInput.value = '';
-                loadReasonData();
+                loadData();
             } else {
                 throw new Error('Insert failed');
             }
         } catch (error) {
-            Swal.fire({ icon: 'error', title: 'ไม่สามารถบันทึกข้อมูลได้', background: '#082f49', color: 'white' });
+            Swal.fire({ icon: 'error', title: 'ไม่สามารถบันทึกข้อมูลได้', background: '#112228', color: '#c9d1d9' });
         } finally {
             btnAdd.disabled = false;
-            btnAdd.innerText = '[+] บันทึกสาเหตุ (SAVE)';
+            btnAdd.innerText = '[+] บันทึกข้อมูล (SAVE)';
         }
     }
 
+    // 6. แก้ไขข้อมูล (ต้องการรหัส)
     function editReason(id, currentReason) {
-        Swal.fire({
-            title: 'แก้ไขสาเหตุ',
-            input: 'text',
-            inputValue: currentReason,
-            showCancelButton: true,
-            background: '#082f49',
-            color: '#7dd3fc',
-            confirmButtonColor: '#0891b2',
-        }).then(async (result) => {
-            if (result.value && result.value.trim() !== currentReason) {
-                const finalReason = result.value.trim();
+        authenticateAction(async () => {
+            const { value: newReason } = await Swal.fire({
+                title: 'แก้ไขสาเหตุ',
+                input: 'text',
+                inputValue: currentReason,
+                showCancelButton: true,
+                background: '#112228',
+                color: '#c9d1d9',
+                confirmButtonColor: '#009688',
+            });
+
+            if (newReason && newReason.trim() !== currentReason) {
+                const finalReason = newReason.trim();
+                
                 const isDuplicate = await checkDuplicateReason(finalReason, id);
                 if (isDuplicate) {
-                    Swal.fire({ icon: 'error', title: 'ข้อมูลซ้ำ!', text: 'มีสาเหตุนี้ในระบบแล้ว', background: '#082f49', color: 'white' });
+                    Swal.fire({ icon: 'error', title: 'ข้อมูลซ้ำ!', text: 'มีสาเหตุนี้ในระบบแล้ว', background: '#112228', color: '#c9d1d9' });
                     return;
                 }
 
                 try {
-                    const response = await fetch(`${BASE_URL}/reasons?id_reason=eq.${id}`, {
+                    const response = await fetch(`${SUPABASE_URL}?id_reason=eq.${id}`, {
                         method: 'PATCH',
                         headers: headers,
                         body: JSON.stringify({ reason_detail: finalReason })
                     });
+                    
                     if (response.ok) {
-                        Swal.fire({ icon: 'success', title: 'อัปเดตสำเร็จ', timer: 1500, showConfirmButton: false, background: '#082f49', color: '#22d3ee' });
-                        loadReasonData();
+                        Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false, background: '#112228', color: '#00e5ff' });
+                        loadData();
                     }
                 } catch (error) {
-                    Swal.fire({ icon: 'error', title: 'อัปเดตไม่สำเร็จ', background: '#082f49', color: 'white' });
+                    Swal.fire({ icon: 'error', title: 'อัปเดตไม่สำเร็จ', background: '#112228', color: '#c9d1d9' });
                 }
             }
         });
     }
 
-    async function deleteReason(id) {
-        const confirm = await Swal.fire({
-            title: 'ยืนยันการลบข้อมูล?',
-            text: `ลบสาเหตุรหัส: ${id}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            background: '#082f49', color: '#7dd3fc'
-        });
+    // 7. ลบข้อมูล (ต้องการรหัส)
+    function deleteReason(id) {
+        authenticateAction(async () => {
+            const confirm = await Swal.fire({
+                title: 'ยืนยันการลบข้อมูล?',
+                text: `ลบสาเหตุรหัส: ${id}`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d93838',
+                background: '#112228',
+                color: '#c9d1d9',
+                confirmButtonText: 'ใช่, ลบเลย!'
+            });
 
-        if (confirm.isConfirmed) {
-            try {
-                const response = await fetch(`${BASE_URL}/reasons?id_reason=eq.${id}`, {
-                    method: 'DELETE',
-                    headers: headers
-                });
-                if (response.ok) {
-                    Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', timer: 1500, showConfirmButton: false, background: '#082f49', color: '#22d3ee' });
-                    loadReasonData();
+            if (confirm.isConfirmed) {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}?id_reason=eq.${id}`, {
+                        method: 'DELETE',
+                        headers: headers
+                    });
+
+                    if (response.ok) {
+                        Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false, background: '#112228', color: '#00e5ff' });
+                        loadData();
+                    }
+                } catch (error) {
+                    Swal.fire({ icon: 'error', title: 'ไม่สามารถลบข้อมูลได้', background: '#112228', color: '#c9d1d9' });
                 }
-            } catch (error) {
-                Swal.fire({ icon: 'error', title: 'ไม่สามารถลบได้', background: '#082f49', color: 'white' });
             }
-        }
+        });
     }
 </script>
 </body>
