@@ -76,16 +76,16 @@
         
         .action-btns button { padding: 5px 10px; font-size: 0.85rem; margin-bottom: 3px; }
         
-        /* ตัวอักษรสีน้ำเงินเข้ม */
         .reason-cell {
-            color: #00008B;
+            color: #003344;
             font-weight: bold;
-            background-color: #e0f7fa;
+            background-color: #b2ebf2;
             border-radius: 4px;
             padding: 6px 10px !important;
             display: inline-block;
             width: 100%;
             text-align: left;
+            word-break: break-word;
         }
     </style>
 </head>
@@ -126,7 +126,6 @@
 </div>
 
 <script>
-    // ตั้งค่าการเชื่อมต่อ Supabase
     const SUPABASE_URL = 'https://siiiifesdjuunwmwozfb.supabase.co/rest/v1/reasons';
     const SUPABASE_KEY = 'sb_publishable_ohToE8Z_Fzo87uBtzdPDIg_cqHCi3HT';
 
@@ -139,41 +138,18 @@
 
     let isTableVisible = false;
 
-    // 1. ฟังก์ชันเปิด-ปิดตาราง
     function toggleTable() {
         const container = document.getElementById('tableContainer');
         isTableVisible = !isTableVisible;
         
         if (isTableVisible) {
             container.style.display = 'block';
-            loadData(); // ดึงข้อมูลเมื่อกดแสดงผล
+            loadData();
         } else {
             container.style.display = 'none';
         }
     }
 
-    // 2. ฟังก์ชันตรวจสอบรหัสผ่าน
-    async function authenticateAction(actionCallback) {
-        const { value: password } = await Swal.fire({
-            title: 'Security Check',
-            text: 'กรุณากรอกรหัสผ่านเพื่อดำเนินการ',
-            input: 'password',
-            inputPlaceholder: 'PIN',
-            background: '#112228',
-            color: '#c9d1d9',
-            confirmButtonColor: '#009688',
-            showCancelButton: true,
-            inputAttributes: { autocapitalize: 'off' }
-        });
-
-        if (password === '112233') {
-            actionCallback();
-        } else if (password) {
-            Swal.fire({ icon: 'error', title: 'รหัสผ่านไม่ถูกต้อง', background: '#112228', color: '#c9d1d9' });
-        }
-    }
-
-    // 3. ฟังก์ชันเช็กข้อมูลซ้ำในฐานข้อมูล
     async function checkDuplicateReason(reasonToCheck, excludeId = null) {
         try {
             const encodedReason = encodeURIComponent(reasonToCheck);
@@ -185,7 +161,6 @@
 
             const response = await fetch(url, { method: 'GET', headers: headers });
             const data = await response.json();
-            
             return data.length > 0;
         } catch (error) {
             console.error('Check duplicate error:', error);
@@ -193,7 +168,6 @@
         }
     }
 
-    // 4. ดึงข้อมูลมาแสดงผล (เรียงลำดับตัวอักษร)
     async function loadData() {
         if (!isTableVisible) return;
         
@@ -205,23 +179,46 @@
             const data = await response.json();
             
             tbody.innerHTML = '';
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color: #79aebf;">ยังไม่มีข้อมูลสาเหตุ</td></tr>';
                 return;
             }
 
             data.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="color: #79aebf; font-size: 0.9rem;">${item.id_reason}</td>
-                    <td class="text-start">
-                        <div class="reason-cell">${item.reason_detail}</div>
-                    </td>
-                    <td class="action-btns">
-                        <button class="btn btn-edit w-100" onclick="editReason('${item.id_reason}', '${item.reason_detail}')">Edit</button>
-                        <button class="btn btn-sell w-100 mt-1" onclick="deleteReason('${item.id_reason}')">Del</button>
-                    </td>
-                `;
+                
+                const tdId = document.createElement('td');
+                tdId.style.color = '#79aebf';
+                tdId.style.fontSize = '0.9rem';
+                tdId.textContent = item.id_reason;
+
+                const tdReason = document.createElement('td');
+                tdReason.className = 'text-start';
+                const divReason = document.createElement('div');
+                divReason.className = 'reason-cell';
+                divReason.textContent = item.reason_detail;
+                tdReason.appendChild(divReason);
+
+                const tdAction = document.createElement('td');
+                tdAction.className = 'action-btns';
+
+                const btnEdit = document.createElement('button');
+                btnEdit.className = 'btn btn-edit w-100';
+                btnEdit.textContent = 'Edit';
+                btnEdit.onclick = () => editReason(item.id_reason, item.reason_detail);
+
+                const btnDel = document.createElement('button');
+                btnDel.className = 'btn btn-sell w-100 mt-1';
+                btnDel.textContent = 'Del';
+                btnDel.onclick = () => deleteReason(item.id_reason);
+
+                tdAction.appendChild(btnEdit);
+                tdAction.appendChild(btnDel);
+
+                tr.appendChild(tdId);
+                tr.appendChild(tdReason);
+                tr.appendChild(tdAction);
+
                 tbody.appendChild(tr);
             });
         } catch (error) {
@@ -230,7 +227,6 @@
         }
     }
 
-    // 5. เพิ่มข้อมูล พร้อมตรวจสอบข้อมูลซ้ำ
     async function addReason() {
         const reasonInput = document.getElementById('reasonInput');
         const reasonVal = reasonInput.value.trim();
@@ -274,76 +270,74 @@
         }
     }
 
-    // 6. แก้ไขข้อมูล (ต้องการรหัส)
-    function editReason(id, currentReason) {
-        authenticateAction(async () => {
-            const { value: newReason } = await Swal.fire({
-                title: 'แก้ไขสาเหตุ',
-                input: 'text',
-                inputValue: currentReason,
-                showCancelButton: true,
-                background: '#112228',
-                color: '#c9d1d9',
-                confirmButtonColor: '#009688',
-            });
-
-            if (newReason && newReason.trim() !== currentReason) {
-                const finalReason = newReason.trim();
-                
-                const isDuplicate = await checkDuplicateReason(finalReason, id);
-                if (isDuplicate) {
-                    Swal.fire({ icon: 'error', title: 'ข้อมูลซ้ำ!', text: 'มีสาเหตุนี้ในระบบแล้ว', background: '#112228', color: '#c9d1d9' });
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`${SUPABASE_URL}?id_reason=eq.${id}`, {
-                        method: 'PATCH',
-                        headers: headers,
-                        body: JSON.stringify({ reason_detail: finalReason })
-                    });
-                    
-                    if (response.ok) {
-                        Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false, background: '#112228', color: '#00e5ff' });
-                        loadData();
-                    }
-                } catch (error) {
-                    Swal.fire({ icon: 'error', title: 'อัปเดตไม่สำเร็จ', background: '#112228', color: '#c9d1d9' });
-                }
-            }
+    async function editReason(id, currentReason) {
+        const { value: newReason } = await Swal.fire({
+            title: 'แก้ไขสาเหตุ',
+            input: 'text',
+            inputValue: currentReason,
+            showCancelButton: true,
+            background: '#112228',
+            color: '#c9d1d9',
+            confirmButtonColor: '#009688',
+            confirmButtonText: 'บันทึก',
+            cancelButtonText: 'ยกเลิก'
         });
+
+        if (newReason && newReason.trim() !== currentReason) {
+            const finalReason = newReason.trim();
+            
+            const isDuplicate = await checkDuplicateReason(finalReason, id);
+            if (isDuplicate) {
+                Swal.fire({ icon: 'error', title: 'ข้อมูลซ้ำ!', text: 'มีสาเหตุนี้ในระบบแล้ว', background: '#112228', color: '#c9d1d9' });
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}?id_reason=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: headers,
+                    body: JSON.stringify({ reason_detail: finalReason })
+                });
+                
+                if (response.ok) {
+                    Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false, background: '#112228', color: '#00e5ff' });
+                    loadData();
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'อัปเดตไม่สำเร็จ', background: '#112228', color: '#c9d1d9' });
+            }
+        }
     }
 
-    // 7. ลบข้อมูล (ต้องการรหัส)
-    function deleteReason(id) {
-        authenticateAction(async () => {
-            const confirm = await Swal.fire({
-                title: 'ยืนยันการลบข้อมูล?',
-                text: `ลบสาเหตุรหัส: ${id}`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d93838',
-                background: '#112228',
-                color: '#c9d1d9',
-                confirmButtonText: 'ใช่, ลบเลย!'
-            });
-
-            if (confirm.isConfirmed) {
-                try {
-                    const response = await fetch(`${SUPABASE_URL}?id_reason=eq.${id}`, {
-                        method: 'DELETE',
-                        headers: headers
-                    });
-
-                    if (response.ok) {
-                        Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false, background: '#112228', color: '#00e5ff' });
-                        loadData();
-                    }
-                } catch (error) {
-                    Swal.fire({ icon: 'error', title: 'ไม่สามารถลบข้อมูลได้', background: '#112228', color: '#c9d1d9' });
-                }
-            }
+    async function deleteReason(id) {
+        const confirm = await Swal.fire({
+            title: 'ยืนยันการลบข้อมูล?',
+            text: `ลบสาเหตุรหัส: ${id}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d93838',
+            cancelButtonColor: '#6c757d',
+            background: '#112228',
+            color: '#c9d1d9',
+            confirmButtonText: 'ใช่, ลบเลย!',
+            cancelButtonText: 'ยกเลิก'
         });
+
+        if (confirm.isConfirmed) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}?id_reason=eq.${id}`, {
+                    method: 'DELETE',
+                    headers: headers
+                });
+
+                if (response.ok) {
+                    Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false, background: '#112228', color: '#00e5ff' });
+                    loadData();
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'ไม่สามารถลบข้อมูลได้', background: '#112228', color: '#c9d1d9' });
+            }
+        }
     }
 </script>
 </body>
